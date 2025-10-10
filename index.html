@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semper Admin - AMHS Message Formatter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.4;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            border: 3px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .logo-subtext {
+            font-size: 12px;
+            color: #00cc00;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 14px;
+            color: #008800;
+            font-style: italic;
+            margin-top: 10px;
+            border-top: 1px solid #004400;
+            padding-top: 10px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #0d0d0d;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #00ff00;
+            text-transform: uppercase;
+            font-size: 24px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            border: 1px solid #004400;
+            padding: 15px;
+            background: #050505;
+        }
+        
+        .section-title {
+            color: #00ff00;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 14px;
+            border-bottom: 1px solid #003300;
+            padding-bottom: 5px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00cc00;
+            font-size: 12px;
+        }
+        
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 200px;
+        }
+        
+        button {
+            background: #004400;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #006600;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        button:active {
+            background: #008800;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .error {
+            color: #ff0000;
+            font-size: 11px;
+            margin-top: -8px;
+            margin-bottom: 8px;
+        }
+        
+        .warning {
+            color: #ffff00;
+            font-size: 11px;
+            margin-top: -8px;
+            margin-bottom: 8px;
+        }
+        
+        .char-count {
+            text-align: right;
+            font-size: 11px;
+            color: #00cc00;
+        }
+        
+        .char-count.over {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        
+        .ref-item {
+            border: 1px solid #003300;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #000;
+        }
+        
+        .ref-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .preview {
+            background: #000;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .validation-panel {
+            background: #0a0a0a;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .validation-item {
+            padding: 5px;
+            margin: 3px 0;
+            font-size: 11px;
+        }
+        
+        .validation-item.pass {
+            color: #00ff00;
+        }
+        
+        .validation-item.fail {
+            color: #ff0000;
+        }
+        
+        .validation-item.warn {
+            color: #ffff00;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 2px solid #004400;
+            color: #006600;
+            font-size: 11px;
+        }
+        
+        .footer a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .version {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: #004400;
+        }
+    </style>
+</head>
+<body>
+    <div class="version">v1.0</div>
+    
+    <div class="header">
+        <div class="logo">SEMPER ADMIN</div>
+        <div class="logo-subtext">OPERATIONAL EXCELLENCE THROUGH AUTOMATION</div>
+        <div class="tagline">"Streamlining Marine Corps Administration - One Message at a Time"</div>
+    </div>
+    
+    <div class="container">
+        <h1>AMHS Message Formatter</h1>
+        
+        <!-- Message Type -->
+        <div class="section">
+            <div class="section-title">Message Type & Classification</div>
+            <div class="grid-2">
+                <div>
+                    <label>Message Type:</label>
+                    <select id="msgType">
+                        <option value="GENADMIN">GENADMIN</option>
+                        <option value="MARADMIN">MARADMIN</option>
+                        <option value="ALMAR">ALMAR</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Classification:</label>
+                    <select id="classification">
+                        <option value="UNCLASSIFIED">UNCLASSIFIED</option>
+                        <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+                        <option value="SECRET">SECRET</option>
+                        <option value="TOP SECRET">TOP SECRET</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Header Fields -->
+        <div class="section">
+            <div class="section-title">Message Header</div>
+            <label>Originator (FROM):</label>
+            <input type="text" id="originator" placeholder="CMC WASHINGTON DC">
+            
+            <label>Subject (SUBJ):</label>
+            <input type="text" id="subject" placeholder="YOUR SUBJECT IN ALL CAPS">
+            <div class="char-count" id="subjCharCount">0/69 chars</div>
+            
+            <label>Office Code (Optional):</label>
+            <input type="text" id="officeCode" placeholder="MRA MM">
+        </div>
+        
+        <!-- References Section -->
+        <div class="section">
+            <div class="section-title">References (REF/NARR)</div>
+            <div id="referencesContainer"></div>
+            <div class="button-group">
+                <button onclick="addReference()">+ Add Reference</button>
+                <button onclick="generateNarrative()">Generate NARR/</button>
+            </div>
+            <div style="margin-top: 15px;">
+                <label>Generated NARR/ Field:</label>
+                <textarea id="narrativeOutput" readonly rows="4"></textarea>
+            </div>
+        </div>
+        
+        <!-- Message Text -->
+        <div class="section">
+            <div class="section-title">Message Text (GENTEXT/REMARKS)</div>
+            <div class="button-group">
+                <button onclick="insertParagraph(1)">1.</button>
+                <button onclick="insertParagraph('a')">a.</button>
+                <button onclick="insertParagraph('1sub')">(1)</button>
+                <button onclick="insertParagraph('asub')">(a)</button>
+                <button onclick="checkLineLength()">Check Line Length</button>
+                <button onclick="autoFormat()">Auto-Format (69 chars)</button>
+            </div>
+            <textarea id="messageText" placeholder="Enter message text here..."></textarea>
+            <div id="lineLengthWarnings"></div>
+        </div>
+        
+        <!-- Validation Panel -->
+        <div class="validation-panel">
+            <div class="section-title">USMTF Validation</div>
+            <div id="validationResults"></div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="button-group">
+            <button onclick="validateMessage()">Validate Message</button>
+            <button onclick="generatePreview()">Generate Preview</button>
+            <button onclick="downloadMessage()">Download .TXT</button>
+            <button onclick="saveTemplate()">Save Template</button>
+            <button onclick="loadTemplate()">Load Template</button>
+            <button onclick="clearAll()">Clear All</button>
+        </div>
+        
+        <!-- Preview -->
+        <div class="section">
+            <div class="section-title">Message Preview</div>
+            <div class="preview" id="messagePreview">Preview will appear here...</div>
+        </div>
+        
+        <div class="footer">
+            <strong>SEMPER ADMIN</strong> | Developed for Marines, by Marines<br>
+            For support or feedback, contact your local S-1 or submit via command channels<br>
+            <em>Not affiliated with or endorsed by HQMC | Unofficial tool for administrative efficiency</em><br>
+            <em>Follow Semper Admin on all platforms: <a href="https://linktr.ee/semperadmin" target="_blank" style="color: #1e40af; text-decoration: underline;">https://linktr.ee/semperadmin</a></em>
+        </div>
+    </div>
+
+    <script>
+        let refCounter = 0;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('subject').addEventListener('input', updateSubjectCharCount);
+            document.getElementById('messageText').addEventListener('input', autoValidate);
+        });
+        
+        // Subject character count
+        function updateSubjectCharCount() {
+            const subj = document.getElementById('subject').value;
+            const count = subj.length;
+            const display = document.getElementById('subjCharCount');
+            display.textContent = `${count}/69 chars`;
+            display.className = count > 69 ? 'char-count over' : 'char-count';
+        }
+        
+        // Reference Management
+        function addReference() {
+            refCounter++;
+            const letter = String.fromCharCode(64 + refCounter); // A, B, C...
+            
+            const container = document.getElementById('referencesContainer');
+            const refDiv = document.createElement('div');
+            refDiv.className = 'ref-item';
+            refDiv.id = `ref-${refCounter}`;
+            
+            refDiv.innerHTML = `
+                <div class="ref-header">
+                    <strong>REF/${letter}/</strong>
+                    <button onclick="removeReference(${refCounter})">Remove</button>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <label>Type:</label>
+                        <select id="refType-${refCounter}">
+                            <option value="MSGID:DOC">MSGID:DOC</option>
+                            <option value="MSGID:MSG">MSGID:MSG</option>
+                            <option value="DOC">DOC</option>
+                            <option value="MSG">MSG</option>
+                            <option value="LTR">LTR</option>
+                            <option value="MEMO">MEMO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Originator:</label>
+                        <input type="text" id="refOrigin-${refCounter}" placeholder="CMC WASHINGTON DC">
+                    </div>
+                </div>
+                <label>Date (YMD:YYYYMMDD or DTG):</label>
+                <input type="text" id="refDate-${refCounter}" placeholder="YMD:20250101 or 091500LOCT25">
+                <label>Title/Description for NARR:</label>
+                <input type="text" id="refTitle-${refCounter}" placeholder="Full document title">
+            `;
+            
+            container.appendChild(refDiv);
+        }
+        
+        function removeReference(id) {
+            const elem = document.getElementById(`ref-${id}`);
+            if (elem) elem.remove();
+            renumberReferences();
+        }
+        
+        function renumberReferences() {
+            const refs = document.querySelectorAll('.ref-item');
+            refs.forEach((ref, index) => {
+                const letter = String.fromCharCode(65 + index);
+                ref.querySelector('.ref-header strong').textContent = `REF/${letter}/`;
+            });
+        }
+        
+        function generateNarrative() {
+            const refs = document.querySelectorAll('.ref-item');
+            let narrative = 'NARR/';
+            
+            refs.forEach((ref, index) => {
+                const letter = String.fromCharCode(65 + index);
+                const id = ref.id.split('-')[1];
+                const title = document.getElementById(`refTitle-${id}`).value;
+                
+                if (title) {
+                    narrative += `REF ${letter} IS ${title.toUpperCase()}. `;
+                }
+            });
+            
+            narrative = narrative.trim();
+            if (narrative === 'NARR/') {
+                narrative += 'NO REFERENCES//';
+            } else {
+                narrative += '/';
+            }
+            
+            document.getElementById('narrativeOutput').value = narrative;
+        }
+        
+        // Paragraph numbering
+        function insertParagraph(type) {
+            const textarea = document.getElementById('messageText');
+            const cursorPos = textarea.selectionStart;
+            const text = textarea.value;
+            let insert = '';
+            
+            switch(type) {
+                case 1:
+                    const mainNum = (text.match(/^\d+\./gm) || []).length + 1;
+                    insert = `${mainNum}. `;
+                    break;
+                case 'a':
+                    insert = '  A. ';
+                    break;
+                case '1sub':
+                    insert = '    (1) ';
+                    break;
+                case 'asub':
+                    insert = '      (A) ';
+                    break;
+            }
+            
+            textarea.value = text.slice(0, cursorPos) + insert + text.slice(cursorPos);
+            textarea.selectionStart = textarea.selectionEnd = cursorPos + insert.length;
+            textarea.focus();
+        }
+        
+        // Line length checking
+        function checkLineLength() {
+            const text = document.getElementById('messageText').value;
+            const lines = text.split('\n');
+            const warnings = document.getElementById('lineLengthWarnings');
+            warnings.innerHTML = '';
+            
+            let hasErrors = false;
+            lines.forEach((line, index) => {
+                if (line.length > 69) {
+                    hasErrors = true;
+                    const div = document.createElement('div');
+                    div.className = 'error';
+                    div.textContent = `Line ${index + 1}: ${line.length} chars (exceeds 69)`;
+                    warnings.appendChild(div);
+                }
+            });
+            
+            if (!hasErrors) {
+                warnings.innerHTML = '<div class="validation-item pass">✓ All lines within 69 character limit</div>';
+            }
+        }
+        
+        // Auto-format to 69 chars
+        function autoFormat() {
+            const textarea = document.getElementById('messageText');
+            const text = textarea.value;
+            const lines = text.split('\n');
+            let formatted = [];
+            
+            lines.forEach(line => {
+                if (line.length <= 69) {
+                    formatted.push(line);
+                } else {
+                    // Split long lines at word boundaries
+                    let remaining = line;
+                    while (remaining.length > 69) {
+                        let breakPoint = 69;
+                        // Find last space before 69 chars
+                        for (let i = 69; i >= 0; i--) {
+                            if (remaining[i] === ' ') {
+                                breakPoint = i;
+                                break;
+                            }
+                        }
+                        formatted.push(remaining.slice(0, breakPoint));
+                        remaining = remaining.slice(breakPoint).trim();
+                    }
+                    if (remaining) formatted.push(remaining);
+                }
+            });
+            
+            textarea.value = formatted.join('\n');
+            checkLineLength();
+        }
+        
+        // Validation
+        function validateMessage() {
+            const results = document.getElementById('validationResults');
+            results.innerHTML = '';
+            let valid = true;
+            
+            // Check required fields
+            const checks = [
+                {
+                    field: 'originator',
+                    label: 'Originator (FROM)',
+                    required: true
+                },
+                {
+                    field: 'subject',
+                    label: 'Subject',
+                    required: true,
+                    maxLength: 69
+                },
+                {
+                    field: 'messageText',
+                    label: 'Message Text',
+                    required: true
+                }
+            ];
+            
+            checks.forEach(check => {
+                const value = document.getElementById(check.field).value;
+                const div = document.createElement('div');
+                div.className = 'validation-item';
+                
+                if (check.required && !value.trim()) {
+                    div.className += ' fail';
+                    div.textContent = `✗ ${check.label}: Required field missing`;
+                    valid = false;
+                } else if (check.maxLength && value.length > check.maxLength) {
+                    div.className += ' fail';
+                    div.textContent = `✗ ${check.label}: Exceeds ${check.maxLength} characters`;
+                    valid = false;
+                } else if (value.trim()) {
+                    div.className += ' pass';
+                    div.textContent = `✓ ${check.label}: Valid`;
+                }
+                
+                results.appendChild(div);
+            });
+            
+            // Check subject is uppercase
+            const subj = document.getElementById('subject').value;
+            if (subj && subj !== subj.toUpperCase()) {
+                const div = document.createElement('div');
+                div.className = 'validation-item warn';
+                div.textContent = '⚠ Subject should be all uppercase';
+                results.appendChild(div);
+            }
+            
+            // Check line lengths
+            const text = document.getElementById('messageText').value;
+            const lines = text.split('\n');
+            const overLength = lines.filter(l => l.length > 69).length;
+            
+            const lineDiv = document.createElement('div');
+            lineDiv.className = 'validation-item';
+            if (overLength > 0) {
+                lineDiv.className += ' fail';
+                lineDiv.textContent = `✗ ${overLength} line(s) exceed 69 characters`;
+                valid = false;
+            } else if (lines.length > 0) {
+                lineDiv.className += ' pass';
+                lineDiv.textContent = '✓ All lines within character limit';
+            }
+            results.appendChild(lineDiv);
+            
+            return valid;
+        }
+        
+        function autoValidate() {
+            validateMessage();
+        }
+        
+        // Generate Preview
+        function generatePreview() {
+            const preview = document.getElementById('messagePreview');
+            const msgType = document.getElementById('msgType').value;
+            const classification = document.getElementById('classification').value;
+            const originator = document.getElementById('originator').value.toUpperCase();
+            const subject = document.getElementById('subject').value.toUpperCase();
+            const officeCode = document.getElementById('officeCode').value;
+            const messageText = document.getElementById('messageText').value;
+            const narrative = document.getElementById('narrativeOutput').value;
+            
+            let message = `${classification}//\n`;
+            message += `MSGID/GENADMIN/${originator}`;
+            if (officeCode) message += `/${officeCode}`;
+            message += `//\n`;
+            message += `SUBJ/${subject}//\n`;
+            
+            // Add references
+            const refs = document.querySelectorAll('.ref-item');
+            refs.forEach((ref, index) => {
+                const letter = String.fromCharCode(65 + index);
+                const id = ref.id.split('-')[1];
+                const type = document.getElementById(`refType-${id}`).value;
+                const origin = document.getElementById(`refOrigin-${id}`).value.toUpperCase();
+                const date = document.getElementById(`refDate-${id}`).value;
+                
+                if (origin && date) {
+                    message += `REF/${letter}/${type}/${origin}/${date}//\n`;
+                }
+            });
+            
+            if (narrative && narrative !== 'NARR/NO REFERENCES//') {
+                message += `${narrative}\n`;
+            }
+            
+            message += `GENTEXT/REMARKS/${messageText}\n`;
+            message += `//\n`;
+            message += `BT\n`;
+            message += `${classification}//`;
+            
+            preview.textContent = message;
+        }
+        
+        // Download
+        function downloadMessage() {
+            generatePreview();
+            const preview = document.getElementById('messagePreview').textContent;
+            const blob = new Blob([preview], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const msgType = document.getElementById('msgType').value;
+            const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            a.download = `SEMPERADMIN_${msgType}_${date}.txt`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Template Management
+        function saveTemplate() {
+            const template = {
+                msgType: document.getElementById('msgType').value,
+                classification: document.getElementById('classification').value,
+                originator: document.getElementById('originator').value,
+                subject: document.getElementById('subject').value,
+                officeCode: document.getElementById('officeCode').value,
+                messageText: document.getElementById('messageText').value,
+                narrative: document.getElementById('narrativeOutput').value,
+                references: []
+            };
+            
+            document.querySelectorAll('.ref-item').forEach(ref => {
+                const id = ref.id.split('-')[1];
+                template.references.push({
+                    type: document.getElementById(`refType-${id}`).value,
+                    origin: document.getElementById(`refOrigin-${id}`).value,
+                    date: document.getElementById(`refDate-${id}`).value,
+                    title: document.getElementById(`refTitle-${id}`).value
+                });
+            });
+            
+            const name = prompt('Template name:', 'template_' + Date.now());
+            if (name) {
+                localStorage.setItem(`semperadmin_template_${name}`, JSON.stringify(template));
+                alert('Template saved!');
+            }
+        }
+        
+        function loadTemplate() {
+            const name = prompt('Template name:');
+            if (name) {
+                const template = localStorage.getItem(`semperadmin_template_${name}`);
+                if (template) {
+                    const data = JSON.parse(template);
+                    document.getElementById('msgType').value = data.msgType;
+                    document.getElementById('classification').value = data.classification;
+                    document.getElementById('originator').value = data.originator;
+                    document.getElementById('subject').value = data.subject;
+                    document.getElementById('officeCode').value = data.officeCode;
+                    document.getElementById('messageText').value = data.messageText;
+                    document.getElementById('narrativeOutput').value = data.narrative;
+                    
+                    // Clear and reload references
+                    document.getElementById('referencesContainer').innerHTML = '';
+                    refCounter = 0;
+                    data.references.forEach(ref => {
+                        addReference();
+                        const id = refCounter;
+                        document.getElementById(`refType-${id}`).value = ref.type;
+                        document.getElementById(`refOrigin-${id}`).value = ref.origin;
+                        document.getElementById(`refDate-${id}`).value = ref.date;
+                        document.getElementById(`refTitle-${id}`).value = ref.title;
+                    });
+                    
+                    alert('Template loaded!');
+                    validateMessage();
+                } else {
+                    alert('Template not found!');
+                }
+            }
+        }
+        
+        function clearAll() {
+            if (confirm('Clear all fields?')) {
+                document.getElementById('originator').value = '';
+                document.getElementById('subject').value = '';
+                document.getElementById('officeCode').value = '';
+                document.getElementById('messageText').value = '';
+                document.getElementById('narrativeOutput').value = '';
+                document.getElementById('referencesContainer').innerHTML = '';
+                document.getElementById('messagePreview').textContent = 'Preview will appear here...';
+                document.getElementById('validationResults').innerHTML = '';
+                document.getElementById('lineLengthWarnings').innerHTML = '';
+                refCounter = 0;
+            }
+        }
+    </script>
+</body>
+</html>
