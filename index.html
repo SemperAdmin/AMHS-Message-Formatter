@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semper Admin - AMHS Message Formatter v2.0</title>
+    <title>Semper Admin - AMHS Message Formatter Updated: 20251010</title>
     <style>
         * {
             margin: 0;
@@ -459,13 +459,13 @@
         <div class="section">
             <div class="section-title">
                 Message Text (GENTEXT/REMARKS)
-                <span class="tooltip" data-tip="Enter message body. Use paragraph buttons for proper formatting. Text auto-formats to proper line breaks in preview.">?</span>
+                <span class="tooltip" data-tip="Enter message body. Paragraph buttons auto-number based on context. Example: After 3.B., clicking 'Sub Para' creates 3.C. Clicking 'Sub-Sub Para' creates 3.B.1.">?</span>
             </div>
             <div class="button-group">
-                <button onclick="insertParagraph('main')">1. Main</button>
-                <button onclick="insertParagraph('sub-a')">A. Sub</button>
-                <button onclick="insertParagraph('sub-1')">(1) Sub-Sub</button>
-                <button onclick="insertParagraph('sub-a2')">(A) Sub-Sub-Sub</button>
+                <button onclick="insertParagraph('main')">1. Main Para</button>
+                <button onclick="insertParagraph('sub-a')">1.A. Sub Para</button>
+                <button onclick="insertParagraph('sub-1')">1.A.1. Sub-Sub Para</button>
+                <button onclick="insertParagraph('sub-a2')">1.A.1.A. Sub-Sub-Sub</button>
             </div>
             <textarea id="messageText" placeholder="Enter message text here..."></textarea>
         </div>
@@ -494,7 +494,7 @@
         </div>
         
         <div class="footer">
-            <em>Follow Semper Admin on all platforms: <a href="https://linktr.ee/semperadmin" target="_blank" style="color: #1e40af; text-decoration: underline;"><strong style="color: #00ff00;">SEMPER ADMIN</strong></a></em> | Developed for Marines, by Marines<br>
+            <em>Follow Semper Admin on all platforms: <a href="https://linktr.ee/semperadmin" target="_blank" style="color: #1e40af; text-decoration: underline;"><strong style="color: #00ff00;">SEMPER ADMIN</strong></a></em><br> | Developed for Marines, by Marines<br>
             For support or feedback, contact your local S-1 or submit via command channels<br>
             
             <em>Not affiliated with or endorsed by HQMC | Unofficial tool for administrative efficiency</em>
@@ -606,26 +606,113 @@
             document.getElementById('poc-' + id).remove();
         }
         
+        function parseLastParagraph(textBeforeCursor) {
+            const lines = textBeforeCursor.split('\n');
+            
+            for (let i = lines.length - 1; i >= 0; i--) {
+                const line = lines[i].trim();
+                
+                const subsubsubMatch = line.match(/^(\d+)\.([A-Z])\.(\d+)\.([A-Z])\.\s?/);
+                if (subsubsubMatch) {
+                    return { level: 'subsubsub', main: parseInt(subsubsubMatch[1]), sub: subsubsubMatch[2], subsub: parseInt(subsubsubMatch[3]), subsubsub: subsubsubMatch[4] };
+                }
+                
+                const subsubMatch = line.match(/^(\d+)\.([A-Z])\.(\d+)\.\s?/);
+                if (subsubMatch) {
+                    return { level: 'subsub', main: parseInt(subsubMatch[1]), sub: subsubMatch[2], subsub: parseInt(subsubMatch[3]), subsubsub: null };
+                }
+                
+                const subMatch = line.match(/^(\d+)\.([A-Z])\.\s?/);
+                if (subMatch) {
+                    return { level: 'sub', main: parseInt(subMatch[1]), sub: subMatch[2], subsub: null, subsubsub: null };
+                }
+                
+                const mainMatch = line.match(/^(\d+)\.\s?/);
+                if (mainMatch) {
+                    return { level: 'main', main: parseInt(mainMatch[1]), sub: null, subsub: null, subsubsub: null };
+                }
+            }
+            
+            return { level: 'none', main: 0, sub: null, subsub: null, subsubsub: null };
+        }
+        
+function parseLastParagraph(textBeforeCursor) {
+            const lines = textBeforeCursor.split('\n');
+            
+            for (let i = lines.length - 1; i >= 0; i--) {
+                const line = lines[i].trim();
+                
+                const subsubsubMatch = line.match(/^(\d+)\.([A-Z])\.(\d+)\.([A-Z])\.\s?/);
+                if (subsubsubMatch) {
+                    return { level: 'subsubsub', main: parseInt(subsubsubMatch[1]), sub: subsubsubMatch[2], subsub: parseInt(subsubsubMatch[3]), subsubsub: subsubsubMatch[4] };
+                }
+                
+                const subsubMatch = line.match(/^(\d+)\.([A-Z])\.(\d+)\.\s?/);
+                if (subsubMatch) {
+                    return { level: 'subsub', main: parseInt(subsubMatch[1]), sub: subsubMatch[2], subsub: parseInt(subsubMatch[3]), subsubsub: null };
+                }
+                
+                const subMatch = line.match(/^(\d+)\.([A-Z])\.\s?/);
+                if (subMatch) {
+                    return { level: 'sub', main: parseInt(subMatch[1]), sub: subMatch[2], subsub: null, subsubsub: null };
+                }
+                
+                const mainMatch = line.match(/^(\d+)\.\s?/);
+                if (mainMatch) {
+                    return { level: 'main', main: parseInt(mainMatch[1]), sub: null, subsub: null, subsubsub: null };
+                }
+            }
+            
+            return { level: 'none', main: 0, sub: null, subsub: null, subsubsub: null };
+        }
+        
         function insertParagraph(type) {
             const textarea = document.getElementById('messageText');
             const cursorPos = textarea.selectionStart;
             const text = textarea.value;
+            const textBeforeCursor = text.slice(0, cursorPos);
+            
+            const context = parseLastParagraph(textBeforeCursor);
             let insert = '';
             
             if (type === 'main') {
-                const mainCount = (text.match(/^\d+\. /gm) || []).length + 1;
-                insert = '\n' + mainCount + '. ';
+                const nextMain = context.main + 1;
+                insert = '\n' + nextMain + '. ';
+                
             } else if (type === 'sub-a') {
-                const subCount = (text.match(/^  [A-Z]\. /gm) || []).length;
-                const nextLetter = String.fromCharCode(65 + subCount);
-                insert = '\n  ' + nextLetter + '. ';
+                if (context.level === 'none' || context.level === 'main') {
+                    const mainNum = context.main || 1;
+                    insert = '\n' + mainNum + '.A. ';
+                } else if (context.level === 'sub') {
+                    const nextLetter = String.fromCharCode(context.sub.charCodeAt(0) + 1);
+                    insert = '\n' + context.main + '.' + nextLetter + '. ';
+                } else if (context.level === 'subsub' || context.level === 'subsubsub') {
+                    const nextLetter = String.fromCharCode(context.sub.charCodeAt(0) + 1);
+                    insert = '\n' + context.main + '.' + nextLetter + '. ';
+                }
+                
             } else if (type === 'sub-1') {
-                const subNumCount = (text.match(/^    \(\d+\) /gm) || []).length + 1;
-                insert = '\n    (' + subNumCount + ') ';
+                if (context.level === 'sub') {
+                    insert = '\n' + context.main + '.' + context.sub + '.1. ';
+                } else if (context.level === 'subsub') {
+                    const nextNum = context.subsub + 1;
+                    insert = '\n' + context.main + '.' + context.sub + '.' + nextNum + '. ';
+                } else if (context.level === 'subsubsub') {
+                    const nextNum = context.subsub + 1;
+                    insert = '\n' + context.main + '.' + context.sub + '.' + nextNum + '. ';
+                } else {
+                    insert = '\n1.A.1. ';
+                }
+                
             } else if (type === 'sub-a2') {
-                const subLetterCount = (text.match(/^      \([A-Z]\) /gm) || []).length;
-                const nextLetter = String.fromCharCode(65 + subLetterCount);
-                insert = '\n      (' + nextLetter + ') ';
+                if (context.level === 'subsub') {
+                    insert = '\n' + context.main + '.' + context.sub + '.' + context.subsub + '.A. ';
+                } else if (context.level === 'subsubsub') {
+                    const nextLetter = String.fromCharCode(context.subsubsub.charCodeAt(0) + 1);
+                    insert = '\n' + context.main + '.' + context.sub + '.' + context.subsub + '.' + nextLetter + '. ';
+                } else {
+                    insert = '\n1.A.1.A. ';
+                }
             }
             
             textarea.value = text.slice(0, cursorPos) + insert + text.slice(cursorPos);
