@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semper Admin - AMHS Message Formatter</title>
+    <title>Semper Admin - AMHS Message Formatter v2.0</title>
     <style>
         * {
             margin: 0;
@@ -20,8 +20,9 @@
         }
         
         .header {
+            max-width: 1200px;
+            margin: 0 auto 30px;
             text-align: center;
-            margin-bottom: 30px;
             padding: 20px;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
             border: 3px solid #00ff00;
@@ -88,6 +89,37 @@
             padding-bottom: 5px;
         }
         
+        .tooltip {
+            display: inline-block;
+            position: relative;
+            margin-left: 5px;
+            cursor: help;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            text-align: center;
+            line-height: 14px;
+            font-size: 12px;
+        }
+        
+        .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            left: 0;
+            top: 25px;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00cc00;
+            padding: 8px;
+            white-space: normal;
+            width: 250px;
+            z-index: 1000;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+        
         label {
             display: block;
             margin-bottom: 5px;
@@ -112,7 +144,6 @@
         textarea:focus,
         select:focus {
             outline: none;
-            border-color: #00ff00;
             box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
         }
         
@@ -150,39 +181,14 @@
             margin-top: 10px;
         }
         
-        .error {
-            color: #ff0000;
-            font-size: 11px;
-            margin-top: -8px;
-            margin-bottom: 8px;
-        }
-        
-        .warning {
-            color: #ffff00;
-            font-size: 11px;
-            margin-top: -8px;
-            margin-bottom: 8px;
-        }
-        
-        .char-count {
-            text-align: right;
-            font-size: 11px;
-            color: #00cc00;
-        }
-        
-        .char-count.over {
-            color: #ff0000;
-            font-weight: bold;
-        }
-        
-        .ref-item {
+        .ref-item, .poc-item {
             border: 1px solid #003300;
             padding: 10px;
             margin-bottom: 10px;
             background: #000;
         }
         
-        .ref-header {
+        .item-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
@@ -205,36 +211,36 @@
             gap: 10px;
         }
         
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        
         .validation-panel {
             background: #0a0a0a;
             border: 1px solid #00ff00;
             padding: 10px;
             margin-bottom: 15px;
+            display: none;
+        }
+        
+        .validation-panel.show {
+            display: block;
         }
         
         .validation-item {
             padding: 5px;
             margin: 3px 0;
             font-size: 11px;
-        }
-        
-        .validation-item.pass {
-            color: #00ff00;
-        }
-        
-        .validation-item.fail {
             color: #ff0000;
         }
         
-        .validation-item.warn {
-            color: #ffff00;
-        }
-        
         .footer {
-            text-align: center;
             margin-top: 30px;
             padding: 20px;
             border-top: 2px solid #004400;
+            text-align: center;
             color: #006600;
             font-size: 11px;
         }
@@ -255,10 +261,86 @@
             font-size: 10px;
             color: #004400;
         }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #0d0d0d;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #003300;
+            padding-bottom: 10px;
+        }
+        
+        .modal-close {
+            color: #ff0000;
+            font-size: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .template-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #003300;
+            margin-bottom: 8px;
+            background: #000;
+        }
+        
+        .template-name {
+            color: #00ff00;
+            font-size: 12px;
+        }
+        
+        .template-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .flex-1 {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
-    <div class="version">v1.0</div>
+    <div class="version">v2.0</div>
     
     <div class="header">
         <div class="logo">SEMPER ADMIN</div>
@@ -269,10 +351,13 @@
     <div class="container">
         <h1>AMHS Message Formatter</h1>
         
-        <!-- Message Type -->
+        <!-- Message Type & Classification -->
         <div class="section">
-            <div class="section-title">Message Type & Classification</div>
-            <div class="grid-2">
+            <div class="section-title">
+                Message Type & Classification
+                <span class="tooltip" data-tip="Select the type of message and its classification level. Classification determines network routing and handling procedures.">?</span>
+            </div>
+            <div class="grid-3">
                 <div>
                     <label>Message Type:</label>
                     <select id="msgType">
@@ -290,55 +375,104 @@
                         <option value="TOP SECRET">TOP SECRET</option>
                     </select>
                 </div>
+                <div>
+                    <label>
+                        Precedence:
+                        <span class="tooltip" data-tip="ROUTINE: 6hr | PRIORITY: 3hr | IMMEDIATE: 30min | FLASH: <10min">?</span>
+                    </label>
+                    <select id="precedence">
+                        <option value="ROUTINE">ROUTINE (R)</option>
+                        <option value="PRIORITY">PRIORITY (P)</option>
+                        <option value="IMMEDIATE">IMMEDIATE (O)</option>
+                        <option value="FLASH">FLASH (Z)</option>
+                    </select>
+                </div>
             </div>
         </div>
         
         <!-- Header Fields -->
         <div class="section">
-            <div class="section-title">Message Header</div>
-            <label>Originator (FROM):</label>
-            <input type="text" id="originator" placeholder="CMC WASHINGTON DC">
-            
-            <label>Subject (SUBJ):</label>
-            <input type="text" id="subject" placeholder="YOUR SUBJECT IN ALL CAPS">
-            <div class="char-count" id="subjCharCount">0/69 chars</div>
-            
-            <label>Office Code (Optional):</label>
-            <input type="text" id="officeCode" placeholder="MRA MM">
+            <div class="section-title">
+                Message Header
+                <span class="tooltip" data-tip="Addressees (TO/INFO) will be added in AMHS system after pasting this message.">?</span>
+            </div>
+            <div class="grid-2">
+                <div>
+                    <label>
+                        Date-Time Group (DTG):
+                        <span class="tooltip" data-tip="Format: DDHHMM(Z)MMMYY. Auto-generated in Zulu (GMT) time.">?</span>
+                    </label>
+                    <div class="flex-row">
+                        <input type="text" id="dtg" placeholder="101445ZOCT25" class="flex-1">
+                        <button onclick="generateDTG()">Refresh</button>
+                    </div>
+                </div>
+                <div>
+                    <label>Office Code (Optional):</label>
+                    <input type="text" id="officeCode" placeholder="MRA MM">
+                </div>
+            </div>
+            <div>
+                <label>
+                    Originator (FROM):
+                    <span class="tooltip" data-tip="Enter the originating command in plain language. Example: CMC WASHINGTON DC">?</span>
+                </label>
+                <input type="text" id="originator" placeholder="CMC WASHINGTON DC">
+            </div>
+            <div>
+                <label>
+                    Subject (SUBJ):
+                    <span class="tooltip" data-tip="Describe message purpose concisely in all caps. Will auto-format across multiple lines in preview.">?</span>
+                </label>
+                <input type="text" id="subject" placeholder="YOUR SUBJECT IN ALL CAPS">
+            </div>
         </div>
         
-        <!-- References Section -->
+        <!-- References -->
         <div class="section">
-            <div class="section-title">References (REF/NARR)</div>
+            <div class="section-title">
+                References (REF/NARR)
+                <span class="tooltip" data-tip="Cite supporting documents. Format: REF/A/MSGID: DOC/MCO 5354.1G//. NARR field describes each reference.">?</span>
+            </div>
             <div id="referencesContainer"></div>
             <div class="button-group">
                 <button onclick="addReference()">+ Add Reference</button>
                 <button onclick="generateNarrative()">Generate NARR/</button>
             </div>
             <div style="margin-top: 15px;">
-                <label>Generated NARR/ Field:</label>
-                <textarea id="narrativeOutput" readonly rows="4"></textarea>
+                <label>Generated Narrative:</label>
+                <textarea id="narrative" readonly rows="4" placeholder="Generated narrative text will appear here (NARR/ and // added automatically in preview)..."></textarea>
             </div>
+        </div>
+        
+        <!-- POC Builder -->
+        <div class="section">
+            <div class="section-title">
+                Point of Contact (POC)
+                <span class="tooltip" data-tip="List primary and alternate POCs for follow-up questions.">?</span>
+            </div>
+            <div id="pocsContainer"></div>
+            <button onclick="addPOC()">+ Add POC</button>
         </div>
         
         <!-- Message Text -->
         <div class="section">
-            <div class="section-title">Message Text (GENTEXT/REMARKS)</div>
+            <div class="section-title">
+                Message Text (GENTEXT/REMARKS)
+                <span class="tooltip" data-tip="Enter message body. Use paragraph buttons for proper formatting. Text auto-formats to proper line breaks in preview.">?</span>
+            </div>
             <div class="button-group">
-                <button onclick="insertParagraph(1)">1.</button>
-                <button onclick="insertParagraph('a')">a.</button>
-                <button onclick="insertParagraph('1sub')">(1)</button>
-                <button onclick="insertParagraph('asub')">(a)</button>
-                <button onclick="checkLineLength()">Check Line Length</button>
-                <button onclick="autoFormat()">Auto-Format (69 chars)</button>
+                <button onclick="insertParagraph('main')">1. Main</button>
+                <button onclick="insertParagraph('sub-a')">A. Sub</button>
+                <button onclick="insertParagraph('sub-1')">(1) Sub-Sub</button>
+                <button onclick="insertParagraph('sub-a2')">(A) Sub-Sub-Sub</button>
             </div>
             <textarea id="messageText" placeholder="Enter message text here..."></textarea>
-            <div id="lineLengthWarnings"></div>
         </div>
         
         <!-- Validation Panel -->
-        <div class="validation-panel">
-            <div class="section-title">USMTF Validation</div>
+        <div class="validation-panel" id="validationPanel">
+            <div class="section-title">Validation Errors:</div>
             <div id="validationResults"></div>
         </div>
         
@@ -346,9 +480,10 @@
         <div class="button-group">
             <button onclick="validateMessage()">Validate Message</button>
             <button onclick="generatePreview()">Generate Preview</button>
+            <button onclick="copyToClipboard()">Copy to Clipboard</button>
             <button onclick="downloadMessage()">Download .TXT</button>
             <button onclick="saveTemplate()">Save Template</button>
-            <button onclick="loadTemplate()">Load Template</button>
+            <button onclick="showTemplateModal()">Load Template</button>
             <button onclick="clearAll()">Clear All</button>
         </div>
         
@@ -359,131 +494,138 @@
         </div>
         
         <div class="footer">
-            <strong>SEMPER ADMIN</strong> | Developed for Marines, by Marines<br>
+            <strong style="color: #00ff00;">SEMPER ADMIN</strong> | Developed for Marines, by Marines<br>
             For support or feedback, contact your local S-1 or submit via command channels<br>
-            <em>Not affiliated with or endorsed by HQMC | Unofficial tool for administrative efficiency</em><br>
-            <em>Follow Semper Admin on all platforms: <a href="https://linktr.ee/semperadmin" target="_blank" style="color: #1e40af; text-decoration: underline;">https://linktr.ee/semperadmin</a></em>
+            <em>Follow Semper Admin on all platforms: <a href="https://linktr.ee/semperadmin" target="_blank" style="color: #1e40af; text-decoration: underline;">https://linktr.ee/semperadmin</a></em><br>
+            <em>Not affiliated with or endorsed by HQMC | Unofficial tool for administrative efficiency</em>
+        </div>
+    </div>
+    
+    <!-- Template Modal -->
+    <div class="modal" id="templateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #00ff00;">LOAD TEMPLATE</h3>
+                <button class="modal-close" onclick="hideTemplateModal()">X</button>
+            </div>
+            <div id="templateList"></div>
         </div>
     </div>
 
     <script>
         let refCounter = 0;
+        let pocCounter = 0;
         
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('subject').addEventListener('input', updateSubjectCharCount);
-            document.getElementById('messageText').addEventListener('input', autoValidate);
+            generateDTG();
+            
+            const uppercaseFields = ['originator', 'subject', 'officeCode'];
+            uppercaseFields.forEach(function(id) {
+                document.getElementById(id).addEventListener('input', function(e) {
+                    this.value = this.value.toUpperCase();
+                });
+            });
         });
         
-        // Subject character count
-        function updateSubjectCharCount() {
-            const subj = document.getElementById('subject').value;
-            const count = subj.length;
-            const display = document.getElementById('subjCharCount');
-            display.textContent = `${count}/69 chars`;
-            display.className = count > 69 ? 'char-count over' : 'char-count';
+        function generateDTG() {
+            const now = new Date();
+            const day = String(now.getUTCDate()).padStart(2, '0');
+            const hours = String(now.getUTCHours()).padStart(2, '0');
+            const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+            const month = months[now.getUTCMonth()];
+            const year = String(now.getUTCFullYear()).slice(-2);
+            document.getElementById('dtg').value = day + hours + minutes + 'Z' + month + year;
         }
         
-        // Reference Management
         function addReference() {
             refCounter++;
-            const letter = String.fromCharCode(64 + refCounter); // A, B, C...
-            
+            const letter = String.fromCharCode(64 + refCounter);
             const container = document.getElementById('referencesContainer');
-            const refDiv = document.createElement('div');
-            refDiv.className = 'ref-item';
-            refDiv.id = `ref-${refCounter}`;
             
-            refDiv.innerHTML = `
-                <div class="ref-header">
-                    <strong>REF/${letter}/</strong>
-                    <button onclick="removeReference(${refCounter})">Remove</button>
-                </div>
-                <div class="grid-2">
-                    <div>
-                        <label>Type:</label>
-                        <select id="refType-${refCounter}">
-                            <option value="MSGID:DOC">MSGID:DOC</option>
-                            <option value="MSGID:MSG">MSGID:MSG</option>
-                            <option value="DOC">DOC</option>
-                            <option value="MSG">MSG</option>
-                            <option value="LTR">LTR</option>
-                            <option value="MEMO">MEMO</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Originator:</label>
-                        <input type="text" id="refOrigin-${refCounter}" placeholder="CMC WASHINGTON DC">
-                    </div>
-                </div>
-                <label>Date (YMD:YYYYMMDD or DTG):</label>
-                <input type="text" id="refDate-${refCounter}" placeholder="YMD:20250101 or 091500LOCT25">
-                <label>Title/Description for NARR:</label>
-                <input type="text" id="refTitle-${refCounter}" placeholder="Full document title">
-            `;
+            const div = document.createElement('div');
+            div.className = 'ref-item';
+            div.id = 'ref-' + refCounter;
+            div.innerHTML = '<div class="item-header"><strong>REF/' + letter + '/</strong><button onclick="removeReference(' + refCounter + ')" class="btn-small">Remove</button></div><div><label>Type:</label><select id="refType-' + refCounter + '"><option value="MSGID: DOC">MSGID: DOC</option><option value="MSGID: MSG">MSGID: MSG</option><option value="DOC">DOC</option><option value="MSG">MSG</option><option value="LTR">LTR</option><option value="MEMO">MEMO</option></select></div><div><label>Document Identifier:</label><input type="text" id="refDoc-' + refCounter + '" placeholder="MCO 5354.1G or 061341ZOCT25"></div><div><label>Full Title for NARR:</label><input type="text" id="refTitle-' + refCounter + '" placeholder="PROHIBITED ACTIVITIES AND CONDUCT PREVENTION AND RESPONSE POLICY"></div>';
+            container.appendChild(div);
             
-            container.appendChild(refDiv);
+            document.getElementById('refDoc-' + refCounter).addEventListener('input', function(e) {
+                this.value = this.value.toUpperCase();
+            });
         }
         
         function removeReference(id) {
-            const elem = document.getElementById(`ref-${id}`);
-            if (elem) elem.remove();
+            document.getElementById('ref-' + id).remove();
             renumberReferences();
         }
         
         function renumberReferences() {
             const refs = document.querySelectorAll('.ref-item');
-            refs.forEach((ref, index) => {
+            refs.forEach(function(ref, index) {
                 const letter = String.fromCharCode(65 + index);
-                ref.querySelector('.ref-header strong').textContent = `REF/${letter}/`;
+                ref.querySelector('.item-header strong').textContent = 'REF/' + letter + '/';
             });
         }
         
         function generateNarrative() {
             const refs = document.querySelectorAll('.ref-item');
-            let narrative = 'NARR/';
+            let narrative = '';
             
-            refs.forEach((ref, index) => {
+            refs.forEach(function(ref, index) {
                 const letter = String.fromCharCode(65 + index);
                 const id = ref.id.split('-')[1];
-                const title = document.getElementById(`refTitle-${id}`).value;
+                const title = document.getElementById('refTitle-' + id).value;
                 
                 if (title) {
-                    narrative += `REF ${letter} IS ${title.toUpperCase()}. `;
+                    narrative += 'REF ' + letter + ' IS THE ' + title.toUpperCase() + '. ';
                 }
             });
             
-            narrative = narrative.trim();
-            if (narrative === 'NARR/') {
-                narrative += 'NO REFERENCES//';
-            } else {
-                narrative += '/';
-            }
-            
-            document.getElementById('narrativeOutput').value = narrative;
+            document.getElementById('narrative').value = narrative.trim() || 'NO REFERENCES';
         }
         
-        // Paragraph numbering
+        function addPOC() {
+            pocCounter++;
+            const container = document.getElementById('pocsContainer');
+            
+            const div = document.createElement('div');
+            div.className = 'poc-item';
+            div.id = 'poc-' + pocCounter;
+            div.innerHTML = '<div class="item-header"><strong>POC Entry</strong><button onclick="removePOC(' + pocCounter + ')" class="btn-small">Remove</button></div><div class="grid-3"><div><label>Name (LAST, FIRST):</label><input type="text" id="pocName-' + pocCounter + '" placeholder="MORALES, J. K."></div><div><label>Rank:</label><input type="text" id="pocRank-' + pocCounter + '" placeholder="MSGT"></div><div><label>Unit:</label><input type="text" id="pocUnit-' + pocCounter + '" placeholder="MRA/MPE"></div></div><div class="grid-2"><div><label>Phone:</label><input type="text" id="pocPhone-' + pocCounter + '" placeholder="(703)784-6164"></div><div><label>Email:</label><input type="text" id="pocEmail-' + pocCounter + '" placeholder="FIRSTNAME.LASTNAME@USMC.MIL"></div></div>';
+            container.appendChild(div);
+            
+            const pocFields = ['pocName', 'pocRank', 'pocUnit', 'pocEmail'];
+            pocFields.forEach(function(field) {
+                document.getElementById(field + '-' + pocCounter).addEventListener('input', function(e) {
+                    this.value = this.value.toUpperCase();
+                });
+            });
+        }
+        
+        function removePOC(id) {
+            document.getElementById('poc-' + id).remove();
+        }
+        
         function insertParagraph(type) {
             const textarea = document.getElementById('messageText');
             const cursorPos = textarea.selectionStart;
             const text = textarea.value;
             let insert = '';
             
-            switch(type) {
-                case 1:
-                    const mainNum = (text.match(/^\d+\./gm) || []).length + 1;
-                    insert = `${mainNum}. `;
-                    break;
-                case 'a':
-                    insert = '  A. ';
-                    break;
-                case '1sub':
-                    insert = '    (1) ';
-                    break;
-                case 'asub':
-                    insert = '      (A) ';
-                    break;
+            if (type === 'main') {
+                const mainCount = (text.match(/^\d+\. /gm) || []).length + 1;
+                insert = '\n' + mainCount + '. ';
+            } else if (type === 'sub-a') {
+                const subCount = (text.match(/^  [A-Z]\. /gm) || []).length;
+                const nextLetter = String.fromCharCode(65 + subCount);
+                insert = '\n  ' + nextLetter + '. ';
+            } else if (type === 'sub-1') {
+                const subNumCount = (text.match(/^    \(\d+\) /gm) || []).length + 1;
+                insert = '\n    (' + subNumCount + ') ';
+            } else if (type === 'sub-a2') {
+                const subLetterCount = (text.match(/^      \([A-Z]\) /gm) || []).length;
+                const nextLetter = String.fromCharCode(65 + subLetterCount);
+                insert = '\n      (' + nextLetter + ') ';
             }
             
             textarea.value = text.slice(0, cursorPos) + insert + text.slice(cursorPos);
@@ -491,197 +633,185 @@
             textarea.focus();
         }
         
-        // Line length checking
-        function checkLineLength() {
-            const text = document.getElementById('messageText').value;
-            const lines = text.split('\n');
-            const warnings = document.getElementById('lineLengthWarnings');
-            warnings.innerHTML = '';
+        function formatToAMHSLines(text, maxChars) {
+            if (!maxChars) maxChars = 65;
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
             
-            let hasErrors = false;
-            lines.forEach((line, index) => {
-                if (line.length > 69) {
-                    hasErrors = true;
-                    const div = document.createElement('div');
-                    div.className = 'error';
-                    div.textContent = `Line ${index + 1}: ${line.length} chars (exceeds 69)`;
-                    warnings.appendChild(div);
-                }
-            });
-            
-            if (!hasErrors) {
-                warnings.innerHTML = '<div class="validation-item pass">✓ All lines within 69 character limit</div>';
-            }
-        }
-        
-        // Auto-format to 69 chars
-        function autoFormat() {
-            const textarea = document.getElementById('messageText');
-            const text = textarea.value;
-            const lines = text.split('\n');
-            let formatted = [];
-            
-            lines.forEach(line => {
-                if (line.length <= 69) {
-                    formatted.push(line);
+            words.forEach(function(word) {
+                const testLine = currentLine ? currentLine + ' ' + word : word;
+                if (testLine.length <= maxChars) {
+                    currentLine = testLine;
                 } else {
-                    // Split long lines at word boundaries
-                    let remaining = line;
-                    while (remaining.length > 69) {
-                        let breakPoint = 69;
-                        // Find last space before 69 chars
-                        for (let i = 69; i >= 0; i--) {
-                            if (remaining[i] === ' ') {
-                                breakPoint = i;
-                                break;
-                            }
-                        }
-                        formatted.push(remaining.slice(0, breakPoint));
-                        remaining = remaining.slice(breakPoint).trim();
-                    }
-                    if (remaining) formatted.push(remaining);
+                    if (currentLine) lines.push(currentLine);
+                    currentLine = word;
                 }
             });
             
-            textarea.value = formatted.join('\n');
-            checkLineLength();
+            if (currentLine) lines.push(currentLine);
+            return lines.join('\n');
         }
         
-        // Validation
+        function formatPOC(poc) {
+            let pocLine = 'POC/' + poc.name;
+            if (poc.rank) pocLine += '/' + poc.rank;
+            if (poc.unit) pocLine += '/' + poc.unit;
+            if (poc.phone) pocLine += '/TEL: ' + poc.phone;
+            
+            if (poc.email) {
+                const emailPart = '/EMAIL: ' + poc.email;
+                if ((pocLine + emailPart).length > 65) {
+                    return pocLine + '\nEMAIL: ' + poc.email;
+                } else {
+                    pocLine += emailPart;
+                }
+            }
+            
+            return pocLine;
+        }
+        
         function validateMessage() {
-            const results = document.getElementById('validationResults');
-            results.innerHTML = '';
-            let valid = true;
+            const errors = [];
             
-            // Check required fields
-            const checks = [
-                {
-                    field: 'originator',
-                    label: 'Originator (FROM)',
-                    required: true
-                },
-                {
-                    field: 'subject',
-                    label: 'Subject',
-                    required: true,
-                    maxLength: 69
-                },
-                {
-                    field: 'messageText',
-                    label: 'Message Text',
-                    required: true
-                }
-            ];
-            
-            checks.forEach(check => {
-                const value = document.getElementById(check.field).value;
-                const div = document.createElement('div');
-                div.className = 'validation-item';
-                
-                if (check.required && !value.trim()) {
-                    div.className += ' fail';
-                    div.textContent = `✗ ${check.label}: Required field missing`;
-                    valid = false;
-                } else if (check.maxLength && value.length > check.maxLength) {
-                    div.className += ' fail';
-                    div.textContent = `✗ ${check.label}: Exceeds ${check.maxLength} characters`;
-                    valid = false;
-                } else if (value.trim()) {
-                    div.className += ' pass';
-                    div.textContent = `✓ ${check.label}: Valid`;
-                }
-                
-                results.appendChild(div);
-            });
-            
-            // Check subject is uppercase
-            const subj = document.getElementById('subject').value;
-            if (subj && subj !== subj.toUpperCase()) {
-                const div = document.createElement('div');
-                div.className = 'validation-item warn';
-                div.textContent = '⚠ Subject should be all uppercase';
-                results.appendChild(div);
+            if (!document.getElementById('originator').value.trim()) {
+                errors.push('Originator (FROM) is required');
+            }
+            if (!document.getElementById('subject').value.trim()) {
+                errors.push('Subject is required');
+            }
+            if (!document.getElementById('messageText').value.trim()) {
+                errors.push('Message text is required');
+            }
+            if (!document.getElementById('dtg').value) {
+                errors.push('Date-Time Group is required');
             }
             
-            // Check line lengths
-            const text = document.getElementById('messageText').value;
-            const lines = text.split('\n');
-            const overLength = lines.filter(l => l.length > 69).length;
-            
-            const lineDiv = document.createElement('div');
-            lineDiv.className = 'validation-item';
-            if (overLength > 0) {
-                lineDiv.className += ' fail';
-                lineDiv.textContent = `✗ ${overLength} line(s) exceed 69 characters`;
-                valid = false;
-            } else if (lines.length > 0) {
-                lineDiv.className += ' pass';
-                lineDiv.textContent = '✓ All lines within character limit';
-            }
-            results.appendChild(lineDiv);
-            
-            return valid;
-        }
-        
-        function autoValidate() {
-            validateMessage();
-        }
-        
-        // Generate Preview
-        function generatePreview() {
-            const preview = document.getElementById('messagePreview');
-            const msgType = document.getElementById('msgType').value;
-            const classification = document.getElementById('classification').value;
-            const originator = document.getElementById('originator').value.toUpperCase();
-            const subject = document.getElementById('subject').value.toUpperCase();
-            const officeCode = document.getElementById('officeCode').value;
-            const messageText = document.getElementById('messageText').value;
-            const narrative = document.getElementById('narrativeOutput').value;
-            
-            let message = `${classification}//\n`;
-            message += `MSGID/GENADMIN/${originator}`;
-            if (officeCode) message += `/${officeCode}`;
-            message += `//\n`;
-            message += `SUBJ/${subject}//\n`;
-            
-            // Add references
             const refs = document.querySelectorAll('.ref-item');
-            refs.forEach((ref, index) => {
-                const letter = String.fromCharCode(65 + index);
+            refs.forEach(function(ref, idx) {
+                const letter = String.fromCharCode(65 + idx);
                 const id = ref.id.split('-')[1];
-                const type = document.getElementById(`refType-${id}`).value;
-                const origin = document.getElementById(`refOrigin-${id}`).value.toUpperCase();
-                const date = document.getElementById(`refDate-${id}`).value;
+                const title = document.getElementById('refTitle-' + id).value;
+                const doc = document.getElementById('refDoc-' + id).value;
                 
-                if (origin && date) {
-                    message += `REF/${letter}/${type}/${origin}/${date}//\n`;
+                if (title && !doc) {
+                    errors.push('Reference ' + letter + ' has title but missing document identifier');
                 }
             });
             
-            if (narrative && narrative !== 'NARR/NO REFERENCES//') {
-                message += `${narrative}\n`;
+            const panel = document.getElementById('validationPanel');
+            const results = document.getElementById('validationResults');
+            
+            if (errors.length > 0) {
+                panel.classList.add('show');
+                results.innerHTML = errors.map(function(e) {
+                    return '<div class="validation-item">X ' + e + '</div>';
+                }).join('');
+                return false;
+            } else {
+                panel.classList.remove('show');
+                return true;
             }
-            
-            message += `GENTEXT/REMARKS/${messageText}\n`;
-            message += `//\n`;
-            message += `BT\n`;
-            message += `${classification}//`;
-            
-            preview.textContent = message;
         }
         
-        // Download
+        function generatePreview() {
+            const classification = document.getElementById('classification').value;
+            const precedence = document.getElementById('precedence').value;
+            const dtg = document.getElementById('dtg').value;
+            const originator = document.getElementById('originator').value;
+            const officeCode = document.getElementById('officeCode').value;
+            const subject = document.getElementById('subject').value;
+            const narrative = document.getElementById('narrative').value;
+            const messageText = document.getElementById('messageText').value;
+            
+            let msg = classification + '//\n';
+            msg += precedence + '\n';
+            msg += dtg + '\n';
+            msg += 'FM ' + originator;
+            if (officeCode) msg += '/' + officeCode;
+            msg += '//\n';
+            msg += 'BT\n';
+            msg += classification + '//\n';
+            msg += 'MSGID/GENADMIN/' + originator;
+            if (officeCode) msg += '/' + officeCode;
+            msg += '//\n';
+            
+            const subjFormatted = formatToAMHSLines(subject);
+            msg += 'SUBJ/' + subjFormatted + '//\n';
+            
+            const refs = document.querySelectorAll('.ref-item');
+            refs.forEach(function(ref, idx) {
+                const letter = String.fromCharCode(65 + idx);
+                const id = ref.id.split('-')[1];
+                const type = document.getElementById('refType-' + id).value;
+                const doc = document.getElementById('refDoc-' + id).value;
+                
+                if (doc) {
+                    msg += 'REF/' + letter + '/' + type + '/' + doc + '//\n';
+                }
+            });
+            
+            if (narrative && narrative !== 'NO REFERENCES') {
+                const narrFormatted = formatToAMHSLines(narrative);
+                msg += 'NARR/' + narrFormatted + '//\n';
+            }
+            
+            const pocs = document.querySelectorAll('.poc-item');
+            pocs.forEach(function(poc) {
+                const id = poc.id.split('-')[1];
+                const name = document.getElementById('pocName-' + id).value;
+                const rank = document.getElementById('pocRank-' + id).value;
+                const unit = document.getElementById('pocUnit-' + id).value;
+                const phone = document.getElementById('pocPhone-' + id).value;
+                const email = document.getElementById('pocEmail-' + id).value;
+                
+                if (name) {
+                    msg += formatPOC({name: name, rank: rank, unit: unit, phone: phone, email: email}) + '//\n';
+                }
+            });
+            
+            const formattedText = messageText.split('\n').map(function(line) {
+                if (!line.trim() || line.length <= 65) return line;
+                return formatToAMHSLines(line);
+            }).join('\n');
+            
+            msg += 'GENTEXT/REMARKS/' + formattedText + '//\n';
+            msg += 'BT\n';
+            msg += classification + '//';
+            
+            document.getElementById('messagePreview').textContent = msg;
+            return msg;
+        }
+        
+        function copyToClipboard() {
+            if (!validateMessage()) {
+                alert('Please fix validation errors before copying.');
+                return;
+            }
+            
+            const msg = generatePreview();
+            navigator.clipboard.writeText(msg).then(function() {
+                alert('Message copied to clipboard!');
+            }).catch(function() {
+                alert('Failed to copy. Please select and copy manually.');
+            });
+        }
+        
         function downloadMessage() {
-            generatePreview();
-            const preview = document.getElementById('messagePreview').textContent;
-            const blob = new Blob([preview], { type: 'text/plain' });
+            if (!validateMessage()) {
+                alert('Message validation failed. Please fix errors before downloading.');
+                return;
+            }
+            
+            const msg = generatePreview();
+            const blob = new Blob([msg], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             
             const msgType = document.getElementById('msgType').value;
             const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-            a.download = `SEMPERADMIN_${msgType}_${date}.txt`;
+            a.download = 'SEMPERADMIN_' + msgType + '_' + date + '.txt';
             
             document.body.appendChild(a);
             a.click();
@@ -689,67 +819,113 @@
             URL.revokeObjectURL(url);
         }
         
-        // Template Management
         function saveTemplate() {
+            const name = prompt('Template name:', 'template_' + Date.now());
+            if (!name) return;
+            
             const template = {
                 msgType: document.getElementById('msgType').value,
                 classification: document.getElementById('classification').value,
+                precedence: document.getElementById('precedence').value,
                 originator: document.getElementById('originator').value,
                 subject: document.getElementById('subject').value,
                 officeCode: document.getElementById('officeCode').value,
+                dtg: document.getElementById('dtg').value,
+                narrative: document.getElementById('narrative').value,
                 messageText: document.getElementById('messageText').value,
-                narrative: document.getElementById('narrativeOutput').value,
-                references: []
+                references: [],
+                pocs: []
             };
             
-            document.querySelectorAll('.ref-item').forEach(ref => {
+            document.querySelectorAll('.ref-item').forEach(function(ref) {
                 const id = ref.id.split('-')[1];
                 template.references.push({
-                    type: document.getElementById(`refType-${id}`).value,
-                    origin: document.getElementById(`refOrigin-${id}`).value,
-                    date: document.getElementById(`refDate-${id}`).value,
-                    title: document.getElementById(`refTitle-${id}`).value
+                    type: document.getElementById('refType-' + id).value,
+                    document: document.getElementById('refDoc-' + id).value,
+                    title: document.getElementById('refTitle-' + id).value
                 });
             });
             
-            const name = prompt('Template name:', 'template_' + Date.now());
-            if (name) {
-                localStorage.setItem(`semperadmin_template_${name}`, JSON.stringify(template));
-                alert('Template saved!');
-            }
+            document.querySelectorAll('.poc-item').forEach(function(poc) {
+                const id = poc.id.split('-')[1];
+                template.pocs.push({
+                    name: document.getElementById('pocName-' + id).value,
+                    rank: document.getElementById('pocRank-' + id).value,
+                    unit: document.getElementById('pocUnit-' + id).value,
+                    phone: document.getElementById('pocPhone-' + id).value,
+                    email: document.getElementById('pocEmail-' + id).value
+                });
+            });
+            
+            localStorage.setItem('semperadmin_template_' + name, JSON.stringify(template));
+            alert('Template saved!');
         }
         
-        function loadTemplate() {
-            const name = prompt('Template name:');
-            if (name) {
-                const template = localStorage.getItem(`semperadmin_template_${name}`);
-                if (template) {
-                    const data = JSON.parse(template);
-                    document.getElementById('msgType').value = data.msgType;
-                    document.getElementById('classification').value = data.classification;
-                    document.getElementById('originator').value = data.originator;
-                    document.getElementById('subject').value = data.subject;
-                    document.getElementById('officeCode').value = data.officeCode;
-                    document.getElementById('messageText').value = data.messageText;
-                    document.getElementById('narrativeOutput').value = data.narrative;
-                    
-                    // Clear and reload references
-                    document.getElementById('referencesContainer').innerHTML = '';
-                    refCounter = 0;
-                    data.references.forEach(ref => {
-                        addReference();
-                        const id = refCounter;
-                        document.getElementById(`refType-${id}`).value = ref.type;
-                        document.getElementById(`refOrigin-${id}`).value = ref.origin;
-                        document.getElementById(`refDate-${id}`).value = ref.date;
-                        document.getElementById(`refTitle-${id}`).value = ref.title;
-                    });
-                    
-                    alert('Template loaded!');
-                    validateMessage();
-                } else {
-                    alert('Template not found!');
-                }
+        function showTemplateModal() {
+            const keys = Object.keys(localStorage).filter(function(k) {
+                return k.startsWith('semperadmin_template_');
+            });
+            const list = document.getElementById('templateList');
+            
+            if (keys.length === 0) {
+                list.innerHTML = '<p style="color: #008800; font-size: 12px;">No saved templates found.</p>';
+            } else {
+                list.innerHTML = keys.map(function(key) {
+                    const name = key.replace('semperadmin_template_', '');
+                    return '<div class="template-item"><span class="template-name">' + name + '</span><div class="template-actions"><button onclick="loadTemplate(\'' + key + '\')" class="btn-small">Load</button><button onclick="deleteTemplate(\'' + key + '\')" class="btn-small">Delete</button></div></div>';
+                }).join('');
+            }
+            
+            document.getElementById('templateModal').classList.add('show');
+        }
+        
+        function hideTemplateModal() {
+            document.getElementById('templateModal').classList.remove('show');
+        }
+        
+        function loadTemplate(key) {
+            const data = JSON.parse(localStorage.getItem(key));
+            
+            document.getElementById('msgType').value = data.msgType;
+            document.getElementById('classification').value = data.classification;
+            document.getElementById('precedence').value = data.precedence;
+            document.getElementById('originator').value = data.originator;
+            document.getElementById('subject').value = data.subject;
+            document.getElementById('officeCode').value = data.officeCode;
+            document.getElementById('dtg').value = data.dtg;
+            document.getElementById('narrative').value = data.narrative;
+            document.getElementById('messageText').value = data.messageText;
+            
+            document.getElementById('referencesContainer').innerHTML = '';
+            refCounter = 0;
+            data.references.forEach(function(ref) {
+                addReference();
+                const id = refCounter;
+                document.getElementById('refType-' + id).value = ref.type;
+                document.getElementById('refDoc-' + id).value = ref.document;
+                document.getElementById('refTitle-' + id).value = ref.title;
+            });
+            
+            document.getElementById('pocsContainer').innerHTML = '';
+            pocCounter = 0;
+            data.pocs.forEach(function(poc) {
+                addPOC();
+                const id = pocCounter;
+                document.getElementById('pocName-' + id).value = poc.name;
+                document.getElementById('pocRank-' + id).value = poc.rank;
+                document.getElementById('pocUnit-' + id).value = poc.unit;
+                document.getElementById('pocPhone-' + id).value = poc.phone;
+                document.getElementById('pocEmail-' + id).value = poc.email;
+            });
+            
+            hideTemplateModal();
+            alert('Template loaded!');
+        }
+        
+        function deleteTemplate(key) {
+            if (confirm('Delete this template?')) {
+                localStorage.removeItem(key);
+                showTemplateModal();
             }
         }
         
@@ -759,12 +935,14 @@
                 document.getElementById('subject').value = '';
                 document.getElementById('officeCode').value = '';
                 document.getElementById('messageText').value = '';
-                document.getElementById('narrativeOutput').value = '';
+                document.getElementById('narrative').value = '';
                 document.getElementById('referencesContainer').innerHTML = '';
+                document.getElementById('pocsContainer').innerHTML = '';
                 document.getElementById('messagePreview').textContent = 'Preview will appear here...';
-                document.getElementById('validationResults').innerHTML = '';
-                document.getElementById('lineLengthWarnings').innerHTML = '';
+                document.getElementById('validationPanel').classList.remove('show');
                 refCounter = 0;
+                pocCounter = 0;
+                generateDTG();
             }
         }
     </script>
